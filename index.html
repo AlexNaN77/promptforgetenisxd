@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PROMPT FORGE // TENIS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Anton&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --rojo: #ff1f3d;
+    --negro: #0a0a0a;
+    --amarillo: #ffe600;
+    --blanco: #fdfdfd;
+    --crema: #f4f1e8;
+    --azul: #2a4cff;
+  }
+
+  html, body {
+    background: var(--crema);
+    color: var(--negro);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Fondo con líneas estilo Persona 5 */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(45deg, transparent 0 20px, rgba(0,0,0,0.04) 20px 21px),
+      repeating-linear-gradient(-45deg, transparent 0 40px, rgba(255,31,61,0.03) 40px 41px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--rojo);
+    border: 5px solid var(--negro);
+    box-shadow: 12px 12px 0 var(--negro);
+    padding: 28px 24px;
+    transform: rotate(-1deg);
+    margin-bottom: 48px;
+    position: relative;
+  }
+  header h1 {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(38px, 7vw, 76px);
+    line-height: 0.9;
+    color: var(--blanco);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    -webkit-text-stroke: 2px var(--negro);
+  }
+  header h1 span.amar {
+    color: var(--amarillo);
+    font-family: 'Archivo Black', sans-serif;
+    display: inline-block;
+    transform: rotate(-3deg) translateY(-4px);
+  }
+  header p {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--negro);
+    background: var(--amarillo);
+    display: inline-block;
+    padding: 6px 14px;
+    margin-top: 14px;
+    border: 3px solid var(--negro);
+    transform: rotate(1deg);
+    letter-spacing: 1px;
+  }
+
+  /* TARJETAS DE INPUT */
+  .card {
+    background: var(--blanco);
+    border: 4px solid var(--negro);
+    box-shadow: 8px 8px 0 var(--negro);
+    padding: 22px;
+    margin-bottom: 28px;
+    transition: transform 0.15s ease;
+  }
+  .card:nth-child(odd) { transform: rotate(-0.4deg); }
+  .card:nth-child(even) { transform: rotate(0.4deg); }
+  .card:hover { transform: rotate(0deg) translate(-2px, -2px); box-shadow: 10px 10px 0 var(--negro); }
+
+  .card label.big {
+    font-family: 'Anton', sans-serif;
+    font-size: 26px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: inline-block;
+    background: var(--negro);
+    color: var(--amarillo);
+    padding: 4px 12px;
+    margin-bottom: 14px;
+  }
+  .card .hint {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 10px;
+  }
+
+  input[type="text"], textarea {
+    width: 100%;
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    padding: 14px;
+    border: 3px solid var(--negro);
+    background: var(--crema);
+    color: var(--negro);
+    outline: none;
+    transition: all 0.1s;
+  }
+  input[type="text"]:focus, textarea:focus {
+    background: var(--amarillo);
+    box-shadow: 4px 4px 0 var(--rojo);
+    transform: translate(-2px, -2px);
+  }
+  textarea { min-height: 110px; resize: vertical; }
+
+  /* SELECTOR NUMÉRICO BRUTALISTA */
+  .num-picker {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .num-btn {
+    width: 60px;
+    height: 60px;
+    border: 4px solid var(--negro);
+    background: var(--blanco);
+    font-family: 'Anton', sans-serif;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--negro);
+    transition: all 0.1s;
+  }
+  .num-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--negro); }
+  .num-btn.active {
+    background: var(--rojo);
+    color: var(--blanco);
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--negro);
+  }
+
+  /* CHECKS / TOGGLES */
+  .toggles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border: 3px solid var(--negro);
+    background: var(--crema);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.1s;
+  }
+  .toggle:hover { background: var(--amarillo); transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--negro); }
+  .toggle input { display: none; }
+  .toggle .box {
+    width: 26px; height: 26px;
+    border: 3px solid var(--negro);
+    background: var(--blanco);
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 20px;
+    color: transparent;
+  }
+  .toggle input:checked ~ .box {
+    background: var(--rojo);
+    color: var(--amarillo);
+  }
+  .toggle input:checked ~ .box::before { content: "✕"; }
+  .toggle .label-txt {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 1px;
+    line-height: 1.1;
+  }
+
+  /* BOTONES PRINCIPALES */
+  .actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .btn {
+    font-family: 'Anton', sans-serif;
+    font-size: 24px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 18px 28px;
+    border: 4px solid var(--negro);
+    cursor: pointer;
+    box-shadow: 8px 8px 0 var(--negro);
+    transition: all 0.1s;
+  }
+  .btn:hover { transform: translate(-3px, -3px); box-shadow: 11px 11px 0 var(--negro); }
+  .btn:active { transform: translate(4px, 4px); box-shadow: 4px 4px 0 var(--negro); }
+  .btn-primary { background: var(--rojo); color: var(--blanco); }
+  .btn-secondary { background: var(--amarillo); color: var(--negro); }
+  .btn-dark { background: var(--negro); color: var(--amarillo); }
+
+  /* OUTPUT */
+  .output-card {
+    background: var(--negro);
+    color: var(--crema);
+    border: 5px solid var(--negro);
+    box-shadow: 12px 12px 0 var(--rojo);
+    padding: 24px;
+    margin-top: 32px;
+    transform: rotate(-0.5deg);
+  }
+  .output-card h2 {
+    font-family: 'Anton', sans-serif;
+    font-size: 38px;
+    color: var(--amarillo);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  #output {
+    width: 100%;
+    min-height: 380px;
+    background: #1a1a1a;
+    color: var(--blanco);
+    border: 3px solid var(--amarillo);
+    padding: 18px;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    resize: vertical;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: var(--amarillo);
+    color: var(--negro);
+    border: 4px solid var(--negro);
+    box-shadow: 6px 6px 0 var(--rojo);
+    padding: 14px 24px;
+    font-family: 'Anton', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    z-index: 999;
+    transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* sello esquina */
+  .sello {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--negro);
+    color: var(--amarillo);
+    font-family: 'Archivo Black', sans-serif;
+    padding: 10px 16px;
+    border: 3px solid var(--amarillo);
+    transform: rotate(8deg);
+    z-index: 100;
+    font-size: 14px;
+    letter-spacing: 1px;
+    pointer-events: none;
+  }
+  
+    /* RECORDATORIOS */
+  .reminders-card {
+    background: var(--amarillo) !important;
+  }
+  .reminders-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .reminders-list li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: var(--blanco);
+    border: 3px solid var(--negro);
+    padding: 14px;
+    box-shadow: 4px 4px 0 var(--negro);
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .reminders-list .bullet {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    background: var(--rojo);
+    color: var(--amarillo);
+    border: 3px solid var(--negro);
+    display: grid;
+    place-items: center;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 18px;
+    transform: rotate(-6deg);
+  }
+  .quote-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+  }
+  .quote-row code {
+    background: var(--negro);
+    color: var(--amarillo);
+    padding: 8px 12px;
+    border: 3px solid var(--negro);
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    flex: 1;
+    min-width: 220px;
+  }
+  .mini-btn {
+    font-family: 'Anton', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1.5px;
+    padding: 10px 16px;
+    background: var(--rojo);
+    color: var(--blanco);
+    border: 3px solid var(--negro);
+    box-shadow: 4px 4px 0 var(--negro);
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+  .mini-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--negro); }
+  .mini-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--negro); }
+  
+    /* GALERÍA */
+  .gallery-card { background: var(--blanco) !important; }
+
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 3px dashed var(--negro);
+  }
+  .filter-btn {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1.5px;
+    padding: 8px 14px;
+    background: var(--crema);
+    color: var(--negro);
+    border: 3px solid var(--negro);
+    box-shadow: 3px 3px 0 var(--negro);
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+  .filter-btn:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 var(--negro); }
+  .filter-btn.active {
+    background: var(--negro);
+    color: var(--amarillo);
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--negro);
+  }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .gal-item {
+    background: var(--crema);
+    border: 4px solid var(--negro);
+    box-shadow: 6px 6px 0 var(--negro);
+    padding: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--negro);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.12s;
+    position: relative;
+    overflow: hidden;
+  }
+  .gal-item::before {
+    content: "→";
+    position: absolute;
+    top: 8px; right: 12px;
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 28px;
+    color: var(--negro);
+    opacity: 0.15;
+    transition: all 0.15s;
+  }
+  .gal-item:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 9px 9px 0 var(--rojo);
+    background: var(--amarillo);
+  }
+  .gal-item:hover::before {
+    opacity: 1;
+    transform: translate(4px, -2px) rotate(-12deg);
+    color: var(--rojo);
+  }
+  .gal-item .title {
+    font-family: 'Anton', sans-serif;
+    font-size: 22px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .gal-item .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border: 2px solid var(--negro);
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+  }
+  .tag-best { background: var(--rojo); color: var(--blanco); }
+  .tag-hero { background: var(--amarillo); color: var(--negro); }
+  .tag-raras { background: var(--azul); color: var(--blanco); }
+  .tag-aire { background: #2ecc71; color: var(--negro); }
+  .tag-misc { background: var(--blanco); color: var(--negro); }
+</style>
+
+</head>
+<body>
+<div class="sello">★ TAKE YOUR HEART ★</div>
+<div class="wrap">
+
+  <header>
+    <h1>PROMPT <span class="amar">FORGE</span><br>// TENIS</h1>
+    <p>Armador modular para gpt-image-2 · Vende criminal</p>
+  </header>
+
+  <div class="card">
+    <label class="big">01 · Tenis de referencia</label>
+    <div class="hint">El que SÍ vas a vender (las imágenes 1, 2, 3... son de éste)</div>
+    <input type="text" id="tenisRef" placeholder="Ej: TENIS NIKE ROSA PALO" value="TENIS NIKE ROSA PALO" />
+  </div>
+
+  <div class="card">
+    <label class="big">02 · Tenis de imagen ideal</label>
+    <div class="hint">El que aparece en la foto ideal (la pose ganadora) y será reemplazado</div>
+    <input type="text" id="tenisIdeal" placeholder="Ej: ADIDAS BOTITA" value="ADIDAS BOTITA" />
+  </div>
+
+  <div class="card">
+    <label class="big">03 · # de imágenes de referencia</label>
+    <div class="hint">Cuántas fotos de tu producto vas a adjuntar (la imagen ideal va aparte al final)</div>
+    <div class="num-picker" id="numPicker">
+      <button class="num-btn" data-n="2">2</button>
+      <button class="num-btn active" data-n="3">3</button>
+      <button class="num-btn" data-n="4">4</button>
+      <button class="num-btn" data-n="5">5</button>
+      <button class="num-btn" data-n="6">6</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label class="big">04 · Explicación de la pose</label>
+    <div class="hint">Describe milimétricamente cómo se ven los tenis en la imagen ideal</div>
+    <textarea id="pose" placeholder="Ej: En la foto de referencia mis Adidas Bota, está un tenis a la derecha puesto de vista para que se vea la suela bien, y ese tenis está recargado en el otro que está de frente, la foto está tomada desde un ángulo muy específico."></textarea>
+  </div>
+
+  <div class="card">
+    <label class="big">05 · Opciones extra</label>
+    <div class="hint">Se anexan al final del prompt</div>
+    <div class="toggles">
+      <label class="toggle">
+        <input type="checkbox" id="opt_ratio916" checked />
+        <span class="box"></span>
+        <span class="label-txt">Aspect ratio 9:16 (vertical)</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="opt_ratio11" />
+        <span class="box"></span>
+        <span class="label-txt">Aspect ratio 1:1 (cuadrada)</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="opt_ratio43" />
+        <span class="box"></span>
+        <span class="label-txt">Aspect ratio 4:3</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="opt_hd" />
+        <span class="box"></span>
+        <span class="label-txt">Calidad alta / nítida</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="opt_natural" />
+        <span class="box"></span>
+        <span class="label-txt">Iluminación natural diurna</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="opt_noedit" />
+        <span class="box"></span>
+        <span class="label-txt">Sin filtros / sin edición</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="opt_clean" />
+        <span class="box"></span>
+        <span class="label-txt">Tenis limpios y bien presentados</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="genBtn">⚡ GENERAR PROMPT</button>
+    <button class="btn btn-secondary" id="copyBtn">📋 COPIAR</button>
+    <button class="btn btn-dark" id="clearBtn">✕ LIMPIAR</button>
+  </div>
+
+  <div class="output-card">
+    <h2>// OUTPUT</h2>
+    <textarea id="output" readonly placeholder="Aquí aparecerá tu prompt listo para pegar en ChatGPT..."></textarea>
+  </div>
+  
+  <br>
+  
+    <div class="card gallery-card">
+    <label class="big">★ · Banco de imágenes ideales</label>
+    <div class="hint">Click en una tarjeta para abrir la publicación en Facebook y descargar la foto</div>
+
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">TODOS</button>
+      <button class="filter-btn" data-filter="best">★ best/goat</button>
+      <button class="filter-btn" data-filter="hero">hero/llamativos</button>
+      <button class="filter-btn" data-filter="raras">raras/singulares</button>
+      <button class="filter-btn" data-filter="aire">al aire libre</button>
+    </div>
+
+    <div class="gallery" id="gallery"></div>
+  </div>
+  
+
+</div>
+
+  <div class="card reminders-card">
+    <label class="big">★ · Recordatorios</label>
+    <div class="hint">Tips para que las fotos salgan criminales</div>
+
+    <ul class="reminders-list">
+      <li>
+        <span class="bullet">!</span>
+        <span>Las <b>imágenes de referencia</b> es mejor tomarlas en <b>otro lugar</b> que no sea el de la imagen ideal, para no confundir a la IA con el fondo.</span>
+      </li>
+      <li>
+        <span class="bullet">!</span>
+        <span>
+          En la <b>explicación de la pose</b>, agrega siempre la frase:
+          <span class="quote-row">
+            <code id="frasePose">la foto está tomada desde un ángulo muy específico.</code>
+            <button class="mini-btn" id="copyFraseBtn" type="button">COPIAR</button>
+          </span>
+        </span>
+      </li>
+    </ul>
+  </div>
+  
+
+<div class="toast" id="toast">¡COPIADO!</div>
+
+<script>
+  // ===== Helpers =====
+  const $ = (id) => document.getElementById(id);
+
+  // Convertir número a lista "1, 2 y 3" / "1, 2, 3 y 4"
+  function listaImagenes(n) {
+    if (n <= 1) return "1";
+    if (n === 2) return "1 y 2";
+    const nums = Array.from({length: n}, (_, i) => i + 1);
+    return nums.slice(0, -1).join(", ") + " y " + nums[nums.length - 1];
+  }
+
+  // Estado del selector numérico
+  let numImgs = 3;
+  document.querySelectorAll('.num-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      numImgs = parseInt(btn.dataset.n);
+    });
+  });
+
+  // ===== Generar prompt =====
+  function generarPrompt() {
+    const tenisRef = ($('tenisRef').value || 'TENIS DE REFERENCIA').trim().toUpperCase();
+    const tenisIdeal = ($('tenisIdeal').value || 'TENIS IDEAL').trim().toUpperCase();
+    const pose = $('pose').value.trim() || '[ESCRIBE AQUÍ LA POSE DE LA IMAGEN IDEAL]';
+    const idealNum = numImgs + 1; // la imagen ideal va después de las de referencia
+    const lista = listaImagenes(numImgs);
+
+    let prompt = `OK tengo una idea para lograr que todas mis fotos de tenis se vean super bien...
+
+CONTEXTO: yo vendo tenis originales de segunda mano en Facebook y ocupo tener buenas fotos para vender... Las "imágenes ideales" son fotos con poses o encuadres específicos que ya me funcionaron en el pasado para vender rápido y bien mis cosas.
+
+OBJETIVO: quiero que agarres las fotos de referencia que te doy de mi producto, y después logres encuadrarlo en la pose exacta, orientación, y fondo exacto de la imagen ${idealNum} (la imagen ideal que vendió mucho)
+
+Las imágenes ${lista} te muestran los (${tenisRef}). son fotos de referencia del producto (para que interiorices los detalles, el como se ven desde distintos ángulos, para evitar alucinaciones o cosas raras)
+
+La imagen ${idealNum} es la "imagen ideal"
+
+Tienes que interiorizar por completo los tenis (${tenisRef}) para conservar sus detalles al 100% de fidelidad, y hacer una foto de ellos que tenga la composición, ángulo, iluminación, fondo, todo, de la imagen ideal (imagen ${idealNum}: ${tenisIdeal}).
+
+Reemplazando los tenis (${tenisIdeal}) de ejemplo, por el cómo se verían ahí mis (${tenisRef}) en esa composición/pose/ángulo/iluminación/fondo, exacto.
+
+Recuerda que quiero resultados exactos. La foto no debe de verse perfecta, tiene que conservar todas las propiedades de que es una foto REAL tomada con un teléfono NORMAL.
+
+HAZ QUE MIS TENIS (${tenisRef}) tengan una foto IGUAL A LAS DE LOS (${tenisIdeal})
+
+EXPLICACIÓN DE LA POSE DE LOS (${tenisIdeal}): ${pose}
+
+Quiero que encaje milimétricamente la foto generada con la foto ideal de los (${tenisIdeal}).
+
+TE HE ADJUNTADO LA IMAGEN IDEAL.
+ENTIENDE POR FAVOR. QUE LA IMAGEN DE OUTPUT
+
+LITERALMENTE LO ÚNICO QUE VA A SER ES
+
+• QUITAR LOS TENIS DE LA IMAGEN IDEAL
+• Y SUSTITUIRLOS POR LOS (${tenisRef})
+• Y QUE TENGA EXACTAMENTE LA MISMA POSE, IGUALITA, EXACTAMENTE, MILIMÉTRICAMENTE. Y EL ENCUADRE DEL FONDO SIGA SIENDO EL MISMO DE LOS ${tenisIdeal}.
+
+NO ME REGRESES NINGÚN TEXTO, PROCEDE DIRECTAMENTE A LA GENERACIÓN DE IMAGEN DE UNA, NO RAZONES NADA`;
+
+    // Anexos opcionales
+    const extras = [];
+    if ($('opt_ratio916').checked) extras.push(`Hazla igual al aspecto de ratio de la imagen ${idealNum}, 9:16`);
+    if ($('opt_ratio11').checked)  extras.push(`Hazla igual al aspecto de ratio de la imagen ${idealNum}, 1:1`);
+    if ($('opt_ratio43').checked)  extras.push(`Hazla igual al aspecto de ratio de la imagen ${idealNum}, 4:3`);
+    if ($('opt_hd').checked)       extras.push(`La imagen debe verse nítida y con buena resolución, sin perder el aspecto de foto real de teléfono.`);
+    if ($('opt_natural').checked)  extras.push(`Iluminación natural diurna, sin flash artificial.`);
+    if ($('opt_noedit').checked)   extras.push(`Sin filtros, sin edición de color, sin retoques. Foto cruda de teléfono.`);
+    if ($('opt_clean').checked)    extras.push(`Los tenis deben verse limpios y bien presentados, sin polvo ni manchas visibles.`);
+
+    if (extras.length) prompt += "\n\n" + extras.join("\n");
+
+    $('output').value = prompt;
+  }
+
+  // ===== Botones =====
+  $('genBtn').addEventListener('click', generarPrompt);
+
+  $('copyBtn').addEventListener('click', async () => {
+    if (!$('output').value) generarPrompt();
+    try {
+      await navigator.clipboard.writeText($('output').value);
+      showToast('¡COPIADO!');
+    } catch {
+      $('output').select();
+      document.execCommand('copy');
+      showToast('¡COPIADO!');
+    }
+  });
+
+  $('clearBtn').addEventListener('click', () => {
+    $('tenisRef').value = '';
+    $('tenisIdeal').value = '';
+    $('pose').value = '';
+    $('output').value = '';
+    document.querySelectorAll('.toggles input[type=checkbox]').forEach(c => c.checked = false);
+    $('opt_ratio916').checked = true;
+    document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.num-btn[data-n="3"]').classList.add('active');
+    numImgs = 3;
+  });
+
+  // ===== Toast =====
+  function showToast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1600);
+  }
+
+  // Generar al cargar para mostrar ejemplo
+  $('pose').value = "En la foto de referencia mis Adidas Bota, está un tenis a la derecha puesto de vista para que se vea la suela bien, y ese tenis está recargado en el otro que está de frente, la foto está tomada desde un ángulo muy específico.";
+  generarPrompt();
+  
+    // ===== Copiar frase de pose =====
+  $('copyFraseBtn').addEventListener('click', async () => {
+    const frase = $('frasePose').textContent;
+    try {
+      await navigator.clipboard.writeText(frase);
+      showToast('¡FRASE COPIADA!');
+    } catch {
+      const r = document.createRange();
+      r.selectNode($('frasePose'));
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(r);
+      document.execCommand('copy');
+      window.getSelection().removeAllRanges();
+      showToast('¡FRASE COPIADA!');
+    }
+  });
+  
+    // ===== Banco de imágenes ideales =====
+  const idealImgs = [
+    { name: "Air Force One", url: "https://www.facebook.com/share/p/1CQGZn5dxq/",
+      tags: [["llamativos","hero"],["para hero","hero"],["poses raras","raras"],["best poses","best"]] },
+    { name: "Adidas Hoops", url: "https://www.facebook.com/share/p/1BaDa1PwbK/",
+      tags: [["best poses","best"],["llamativos","hero"],["estándar","misc"],["best poses","best"]] },
+    { name: "Under Armour", url: "https://www.facebook.com/share/p/14dm9LWha8z/",
+      tags: [["para hero","hero"],["poses raras","raras"]] },
+    { name: "Jordan MVP", url: "https://www.facebook.com/share/p/1LPCQMrz78/",
+      tags: [["poses con caja","misc"],["llamativas","hero"],["best poses","best"]] },
+    { name: "New Balance", url: "https://www.facebook.com/share/p/185RcFxsK8/",
+      tags: [["best poses","best"],["para hero","hero"]] },
+    { name: "Puma Rebound", url: "https://www.facebook.com/share/p/1DDFxj8WgZ/",
+      tags: [] },
+    { name: "Nike Oketo", url: "https://www.facebook.com/share/p/18dFq5zM9D/",
+      tags: [["best poses","best"],["al aire libre","aire"]] },
+    { name: "Adidas Vino Tinto", url: "https://www.facebook.com/share/p/1P94X5utPL/",
+      tags: [["goat poses","best"],["al aire libre","aire"]] },
+    { name: "Jordan 13", url: "https://www.facebook.com/share/p/1V2xZy2WdA/",
+      tags: [["poses singulares","raras"],["Jordan","misc"]] },
+    { name: "Jordan 11 Legend Blue", url: "https://www.facebook.com/share/p/18Vb7cjoPR/",
+      tags: [["poses singulares","raras"]] },
+    { name: "Adidas Suela Roja", url: "https://www.facebook.com/share/p/1CPxhSqL13/",
+      tags: [["best poses","best"]] },
+    { name: "Nike Running", url: "https://www.facebook.com/share/p/18pzsGit6w/",
+      tags: [["unique poses","raras"]] },
+  ];
+
+  function renderGallery(filter = "all") {
+    const gal = $('gallery');
+    gal.innerHTML = "";
+    idealImgs.forEach(item => {
+      const cats = item.tags.map(t => t[1]);
+      if (filter !== "all" && !cats.includes(filter)) return;
+
+      const a = document.createElement('a');
+      a.className = "gal-item";
+      a.href = item.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+
+      const tagsHtml = item.tags.length
+        ? item.tags.map(t => `<span class="tag tag-${t[1]}">${t[0]}</span>`).join("")
+        : `<span class="tag tag-misc">sin tags</span>`;
+
+      a.innerHTML = `
+        <div class="title">${item.name}</div>
+        <div class="tags">${tagsHtml}</div>
+      `;
+      gal.appendChild(a);
+    });
+  }
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGallery(btn.dataset.filter);
+    });
+  });
+
+  renderGallery();
+  
+  
+</script>
+</body>
+</html>
